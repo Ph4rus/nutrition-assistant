@@ -1,0 +1,53 @@
+name: Publish container
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Verify release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_version="${GITHUB_REF_NAME#v}"
+          app_version="$(sed -n 's/^version: "\([^"]*\)"/\1/p' config.yaml)"
+          cargo_version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)"
+
+          if [[ -z "${tag_version}" || "${tag_version}" != "${app_version}" || "${tag_version}" != "${cargo_version}" ]]; then
+            echo "Tag, app, and Cargo versions must match: tag=${tag_version}, app=${app_version}, cargo=${cargo_version}" >&2
+            exit 1
+          fi
+
+          echo "version=${tag_version}" >> "${GITHUB_OUTPUT}"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/ph4rus/nutrition-assistant:${{ steps.version.outputs.version }}
+          build-args: BUILD_VERSION=${{ steps.version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
