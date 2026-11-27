@@ -7,6 +7,7 @@ description = "Deterministic private weekly nutrition planner"
 license = "MIT"
 readme = "README.md"
 publish = false
+repository = "https://github.com/Ph4rus/nutrition-assistant"
 
 [lib]
 name = "nutrition_assistant"

@@ -1,5 +1,6 @@
 name: "Nutrition Assistant"
 description: "Deterministic, private weekly meal-plan dry-run"
+url: "https://github.com/Ph4rus/nutrition-assistant"
 version: "0.3.0"
 slug: "nutrition_assistant"
 stage: experimental
