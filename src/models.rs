@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Error, Result};
 
-pub const PLANNER_SCHEMA_VERSION: &str = "6";
+pub const PLANNER_SCHEMA_VERSION: &str = "7";
 
 fn default_true() -> bool {
     true

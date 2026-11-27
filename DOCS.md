@@ -50,5 +50,10 @@ day configured in the private profile. Review `review.md` in the app configurati
 approving any later publishing phase. The adjacent `dry-run.json` is the exact machine-readable
 preview used for later refinement and hash-bound approval.
 
+When the private profile contains `provisional_daily_kcal_reference`, deterministic validation
+blocks a preview whose seven complete cycle days average above that value. It also blocks each cycle
+day above the reference plus 150 kcal. The rollover lunch on day eight belongs to the next cycle and
+is excluded. The app reports the violation but never lowers or otherwise changes the reference.
+
 Do not automate app startup until several manual dry-runs have completed successfully and backup
 restore has been tested.

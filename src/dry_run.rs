@@ -15,11 +15,12 @@ use crate::profile::profile_version;
 use crate::shopping::consolidate_shopping;
 use crate::storage::RunLedger;
 use crate::validation::{
-    IssueSeverity, ValidationIssue, validate_profile_readiness, validate_weekly_plan,
+    IssueSeverity, ValidationIssue, validate_energy_budget, validate_profile_readiness,
+    validate_weekly_plan,
 };
 use crate::{Error, Result};
 
-const ARTIFACT_TYPE: &str = "dry_run_preview_v6";
+const ARTIFACT_TYPE: &str = "dry_run_preview_v7";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DryRunPreview {
@@ -81,6 +82,7 @@ pub async fn evaluate_plan(
             })?);
         }
     }
+    issues.extend(validate_energy_budget(plan, profile, &nutrition));
     Ok(PlanEvaluation {
         issues,
         nutrition,
@@ -97,7 +99,7 @@ fn input_hash(
     nutrition_source_fingerprint: &str,
 ) -> Result<String> {
     let payload = json!({"planning_context":planning_context(profile,iso_year,iso_week,&catalog.generation_names())?,"provider_model":provider_model,
-        "catalog_version":catalog.version(),"nutrition_source_fingerprint":nutrition_source_fingerprint,"prompt_version":"6"});
+        "catalog_version":catalog.version(),"nutrition_source_fingerprint":nutrition_source_fingerprint,"prompt_version":"7"});
     Ok(format!(
         "{:x}",
         Sha256::digest(serde_json::to_vec(&payload)?)

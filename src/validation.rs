@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use chrono::{Datelike, Duration};
 use regex::Regex;
@@ -6,6 +6,7 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{MealType, NutritionProfile, RecipeProposal, StringOrList, WeeklyPlan};
+use crate::nutrition::RecipeNutrition;
 use crate::planning_cycle::cycle_start_for;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -331,10 +332,79 @@ pub fn validate_weekly_plan(plan: &WeeklyPlan, profile: &NutritionProfile) -> Ve
     issues
 }
 
+/// Validates calculated energy totals against the explicit profile reference without changing it.
+/// The day-eight rollover lunch belongs to the next cycle and is intentionally excluded.
+pub fn validate_energy_budget(
+    plan: &WeeklyPlan,
+    profile: &NutritionProfile,
+    nutrition: &[RecipeNutrition],
+) -> Vec<ValidationIssue> {
+    let Some(reference) = profile.nutrition.provisional_daily_kcal_reference else {
+        return Vec::new();
+    };
+    if nutrition.len() != plan.recipes.len() {
+        return Vec::new();
+    }
+
+    let energy_by_recipe: HashMap<_, _> = nutrition
+        .iter()
+        .map(|item| (item.recipe_id.as_str(), item.per_serving.energy_kcal))
+        .collect();
+    let last_cycle_day = plan.start_date + Duration::days(6);
+    let mut daily = BTreeMap::new();
+    for meal in &plan.meals {
+        if meal.date < plan.start_date || meal.date > last_cycle_day {
+            continue;
+        }
+        if let Some(per_serving) = energy_by_recipe.get(meal.recipe_id.as_str()) {
+            *daily.entry(meal.date).or_insert(Decimal::ZERO) += *per_serving * meal.servings;
+        }
+    }
+
+    let daily_limit = reference + Decimal::from(150);
+    let mut issues = Vec::new();
+    let mut cycle_total = Decimal::ZERO;
+    for offset in 0..7 {
+        let date = plan.start_date + Duration::days(offset);
+        let total = daily.get(&date).copied().unwrap_or(Decimal::ZERO);
+        cycle_total += total;
+        if total > daily_limit {
+            issues.push(issue(
+                IssueSeverity::Blocker,
+                "daily_kcal_above_limit",
+                format!("nutrition.daily.{date}.energy_kcal"),
+                format!(
+                    "Calculated daily energy {} kcal exceeds the configured limit {} kcal.",
+                    total.round_dp(1),
+                    daily_limit.round_dp(1)
+                ),
+            ));
+        }
+    }
+    let average = cycle_total / Decimal::from(7);
+    if average > reference {
+        issues.push(issue(
+            IssueSeverity::Blocker,
+            "weekly_kcal_average_above_reference",
+            "nutrition.weekly_average.energy_kcal".into(),
+            format!(
+                "Calculated seven-day average {} kcal exceeds the explicit reference {} kcal.",
+                average.round_dp(1),
+                reference.round_dp(1)
+            ),
+        ));
+    }
+    sort_issues(&mut issues);
+    issues
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{IngredientProposal, MealSlot, Quantity, RecipeProposal, Unit};
+    use crate::models::{
+        IngredientProposal, MealSlot, NutrientProfile, Quantity, RecipeProposal, Unit,
+    };
+    use crate::nutrition::RecipeNutrition;
     use crate::profile::load_profile;
     use chrono::NaiveDate;
     use rust_decimal::Decimal;
@@ -414,5 +484,96 @@ mod tests {
         assert!(codes.contains("dinner_leftover_missing"));
         assert!(codes.contains("rollover_lunch_invalid"));
         assert!(codes.contains("recipe_servings_mismatch"));
+    }
+
+    #[test]
+    fn explicit_energy_reference_blocks_average_and_daily_excess() {
+        let start = NaiveDate::from_ymd_opt(2026, 12, 1).unwrap();
+        let meals = (0..7)
+            .map(|offset| MealSlot {
+                slot_id: format!("meal-{offset}"),
+                date: start + Duration::days(offset),
+                meal_type: MealType::Dinner,
+                recipe_id: "regular".into(),
+                servings: Decimal::ONE,
+                leftover_of: None,
+            })
+            .chain(std::iter::once(MealSlot {
+                slot_id: "rollover".into(),
+                date: start + Duration::days(7),
+                meal_type: MealType::Lunch,
+                recipe_id: "rollover".into(),
+                servings: Decimal::ONE,
+                leftover_of: Some("meal-6".into()),
+            }))
+            .collect();
+        let plan = WeeklyPlan {
+            iso_year: 2026,
+            iso_week: 49,
+            start_date: start,
+            timezone: "Europe/Berlin".into(),
+            recipes: vec![
+                RecipeProposal {
+                    recipe_id: "regular".into(),
+                    title: "Regular".into(),
+                    servings: Decimal::from(7),
+                    active_minutes: 5,
+                    cuisine_tags: vec![],
+                    ingredients: vec![],
+                    instructions: vec!["Prepare".into()],
+                },
+                RecipeProposal {
+                    recipe_id: "rollover".into(),
+                    title: "Rollover".into(),
+                    servings: Decimal::ONE,
+                    active_minutes: 5,
+                    cuisine_tags: vec![],
+                    ingredients: vec![],
+                    instructions: vec!["Prepare".into()],
+                },
+            ],
+            meals,
+        };
+        let mut profile = load_profile(Path::new("config/profile.example.yaml")).unwrap();
+        profile.nutrition.provisional_daily_kcal_reference = Some(Decimal::from(2800));
+        let item = |recipe_id: &str, energy_kcal: i64| RecipeNutrition {
+            recipe_id: recipe_id.into(),
+            servings: Decimal::ONE,
+            recipe_total: NutrientProfile::default(),
+            per_serving: NutrientProfile {
+                energy_kcal: Decimal::from(energy_kcal),
+                ..Default::default()
+            },
+            trace: vec![],
+            method: "synthetic".into(),
+        };
+
+        let issues = validate_energy_budget(
+            &plan,
+            &profile,
+            &[item("regular", 3000), item("rollover", 10000)],
+        );
+        assert_eq!(
+            issues
+                .iter()
+                .filter(|item| item.code == "daily_kcal_above_limit")
+                .count(),
+            7
+        );
+        assert!(
+            issues
+                .iter()
+                .any(|item| item.code == "weekly_kcal_average_above_reference")
+        );
+
+        assert!(
+            validate_energy_budget(
+                &plan,
+                &profile,
+                &[item("regular", 2800), item("rollover", 10000)]
+            )
+            .is_empty(),
+            "the rollover lunch must not affect the seven-day budget"
+        );
     }
 }

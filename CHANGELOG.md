@@ -7,6 +7,21 @@ uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-11-27
+
+### Added
+
+- Deterministic calorie-budget validation after ingredient-based nutrition calculation.
+- Blocking issues when the seven-day average exceeds the explicit profile reference or a cycle day
+  exceeds that reference by more than 150 kcal.
+
+### Changed
+
+- Planning policy version 7 keeps the day-eight rollover outside the seven complete cycle days and
+  forces existing cached plans through the new policy without overwriting them.
+- The model prompt now proposes conservative quantities for the explicit budget, while Rust remains
+  authoritative and never changes the configured target.
+
 ## [0.3.2] - 2026-11-27
 
 ### Added
@@ -38,7 +53,8 @@ uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Mealie v3 publishing library with conflict checks, ownership ledger, and readback.
 - Experimental one-shot Home Assistant dry-run app.
 
-[Unreleased]: https://github.com/Ph4rus/nutrition-assistant/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/Ph4rus/nutrition-assistant/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.3
 [0.3.2]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.2
 [0.3.1]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.0

@@ -21,6 +21,8 @@ one-shot dry-run and does not publish or modify Home Assistant.
 
 - Model output is an untrusted proposal validated against strict Structured Outputs.
 - Nutrition is calculated from source records, never invented by the model.
+- Explicit calorie references are enforced after calculation: the seven-day average may not exceed
+  the reference, and a cycle day may exceed it by at most 150 kcal.
 - Quantities use decimal arithmetic and explicit, food-specific conversions.
 - Dinner leftovers are reserved servings of the original recipe and are counted once.
 - Shopping lines aggregate only compatible canonical units.
