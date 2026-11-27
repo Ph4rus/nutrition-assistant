@@ -121,6 +121,8 @@ host-network, Home Assistant API, or Supervisor API access. It starts manually, 
 configured planning cycle, stores its private ledger and preview under `/data`, and exits.
 Release images are built by GitHub Actions and published with immutable version tags to GHCR, so
 Home Assistant does not compile the Rust project during installation.
+Completed runs also export a human-readable `review.md` and the corresponding `dry-run.json` to the
+private app configuration directory for review through Home Assistant's File editor.
 
 [![Open Home Assistant and add the Nutrition Assistant app repository.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FPh4rus%2Fnutrition-assistant)
 

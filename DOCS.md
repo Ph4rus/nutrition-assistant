@@ -33,9 +33,11 @@ Never commit option values, API tokens, private profiles, generated previews, or
 
 ## Persistence and backups
 
-The SQLite ledger, feedback, and `dry-run.json` are stored under the app-private `/data` directory.
-Home Assistant also backs up the public app configuration directory. Keep both together: losing
-the ledger loses idempotency and remote-object ownership information.
+The authoritative SQLite ledger, feedback, and immutable preview are stored under the app-private
+`/data` directory. After a completed run, the app atomically exports `review.md` and `dry-run.json`
+to its app configuration directory so they can be inspected with File editor. These exports are
+private working copies; the ledger remains authoritative. Home Assistant backs up both locations.
+Keep them together: losing the ledger loses idempotency and remote-object ownership information.
 
 The app declares `backup: cold`, so Home Assistant stops it while copying `/data`. This prevents a
 backup from capturing SQLite during an active transaction. A run interrupted before an immutable
@@ -44,8 +46,9 @@ artifact or remote object exists can be retried safely.
 ## Operation
 
 The app uses `startup: once` and `boot: manual`. Starting it runs `next-dry-run` for the shopping
-day configured in the private profile. Review `/data/dry-run.json` outside Git before approving any
-later publishing phase.
+day configured in the private profile. Review `review.md` in the app configuration directory before
+approving any later publishing phase. The adjacent `dry-run.json` is the exact machine-readable
+preview used for later refinement and hash-bound approval.
 
 Do not automate app startup until several manual dry-runs have completed successfully and backup
 restore has been tested.
