@@ -24,6 +24,9 @@ mappings before generating a real plan.
 - `mealie_url`: URL reachable from the app container;
 - `mealie_api_token`: dedicated Mealie API token;
 - `skip_destination_check`: development-only escape hatch for tests without Mealie.
+- `operation`: `dry_run` for a weekly proposal or `refine` for one locked recipe replacement;
+- `refine_recipe_id`: exact recipe ID shown in the review issue path;
+- `refine_instruction`: requested change applied only to the selected recipe.
 
 For the Home Assistant Community Apps Mealie installation, the internal Supervisor-network URL is
 normally `http://a0d7b954-mealie:9001`. No external Mealie port is required for app-to-app
@@ -57,3 +60,16 @@ is excluded. The app reports the violation but never lowers or otherwise changes
 
 Do not automate app startup until several manual dry-runs have completed successfully and backup
 restore has been tested.
+
+## Single-recipe refinement
+
+To repair or change one recipe without regenerating the week, set `operation` to `refine`, enter the
+exact `refine_recipe_id`, and provide a concrete `refine_instruction`. Refinement preserves every
+meal slot, every other recipe, the target recipe ID, and its serving count. The app recalculates the
+complete nutrition and shopping results and writes `revision.json` plus `revision-review.md` to the
+private app configuration directory.
+
+A needs-review parent is accepted only when every open issue belongs to the selected recipe. This
+allows a local recipe problem such as `active_time_exceeded` to be repaired without weakening
+unrelated blockers. After inspecting the revision, set `operation` back to `dry_run`; refinement
+never publishes to Mealie.

@@ -7,6 +7,18 @@ uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-11-27
+
+### Added
+
+- Home Assistant `refine` operation for locked single-recipe refinement with private revision and
+  human-readable diff exports.
+
+### Changed
+
+- A needs-review preview may be refined only when every open issue points to the selected recipe;
+  clean validated previews remain supported and all other incomplete previews fail closed.
+
 ## [0.3.3] - 2026-11-27
 
 ### Added
@@ -53,7 +65,8 @@ uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Mealie v3 publishing library with conflict checks, ownership ledger, and readback.
 - Experimental one-shot Home Assistant dry-run app.
 
-[Unreleased]: https://github.com/Ph4rus/nutrition-assistant/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/Ph4rus/nutrition-assistant/compare/v0.3.4...HEAD
+[0.3.4]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.4
 [0.3.3]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.3
 [0.3.2]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.2
 [0.3.1]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.1

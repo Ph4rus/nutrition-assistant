@@ -42,6 +42,7 @@ Implemented:
 - read-only Mealie preflight and immutable dry-run artifacts;
 - private permanent or cycle-scoped feedback;
 - immutable single-recipe refinement with full recalculation;
+- Home Assistant app operation for target-scoped refinement and private revision diffs;
 - hash-bound preview approval and revocation;
 - a tested Mealie publishing library with ownership markers and readback.
 

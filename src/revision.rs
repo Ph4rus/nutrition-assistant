@@ -12,6 +12,36 @@ use crate::{Error, Result};
 
 const ARTIFACT_TYPE: &str = "recipe_revision_v1";
 
+fn validate_refinement_parent(parent: &DryRunPreview, target_recipe_id: &str) -> Result<()> {
+    if parent.writes_performed != 0 {
+        return Err(Error::Validation(
+            "a preview with remote writes cannot be refined".into(),
+        ));
+    }
+    match parent.state {
+        RunState::Validated if parent.issues.is_empty() => Ok(()),
+        RunState::NeedsReview if !parent.issues.is_empty() => {
+            let target_prefix = format!("recipes.{target_recipe_id}.");
+            if parent
+                .issues
+                .iter()
+                .all(|issue| issue.path.starts_with(&target_prefix))
+            {
+                Ok(())
+            } else {
+                Err(Error::Validation(
+                    "needs-review refinement requires every issue to target the selected recipe"
+                        .into(),
+                ))
+            }
+        }
+        _ => Err(Error::Validation(
+            "only a clean validated preview or a target-scoped needs-review preview can be refined"
+                .into(),
+        )),
+    }
+}
+
 pub fn replace_recipe(
     plan: &WeeklyPlan,
     target_recipe_id: &str,
@@ -61,14 +91,7 @@ impl RevisionPlanner<'_> {
         target_recipe_id: &str,
         instruction: &str,
     ) -> Result<DryRunPreview> {
-        if parent.state != RunState::Validated
-            || !parent.issues.is_empty()
-            || parent.writes_performed != 0
-        {
-            return Err(Error::Validation(
-                "only a clean validated preview can be refined".into(),
-            ));
-        }
+        validate_refinement_parent(parent, target_recipe_id)?;
         if instruction.trim().is_empty() {
             return Err(Error::Validation(
                 "recipe refinement instruction must not be empty".into(),
@@ -235,6 +258,34 @@ mod tests {
         assert_eq!(revised.meals, original.meals);
         assert_eq!(revised.recipes[1], original.recipes[1]);
         assert_eq!(revised.recipes[0].title, "New");
+    }
+
+    #[test]
+    fn needs_review_refinement_is_limited_to_target_scoped_issues() {
+        let preview = |path: &str| DryRunPreview {
+            run_key: "run".into(),
+            state: RunState::NeedsReview,
+            plan: None,
+            issues: vec![crate::validation::ValidationIssue {
+                severity: IssueSeverity::Blocker,
+                code: "active_time_exceeded".into(),
+                path: path.into(),
+                message: "synthetic".into(),
+            }],
+            nutrition: vec![],
+            shopping: vec![],
+            destination_conflicts: vec![],
+            writes_performed: 0,
+        };
+
+        assert!(validate_refinement_parent(&preview("recipes.b2.active_minutes"), "b2").is_ok());
+        assert!(
+            validate_refinement_parent(&preview("recipes.other.active_minutes"), "b2").is_err()
+        );
+        assert!(
+            validate_refinement_parent(&preview("nutrition.weekly_average.energy_kcal"), "b2")
+                .is_err()
+        );
     }
 
     #[test]
