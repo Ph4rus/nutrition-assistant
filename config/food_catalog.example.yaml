@@ -1,0 +1,5 @@
+foods:
+  - food_id: synthetic-rice
+    source_id: synthetic-bls-code
+    names: [synthetic rice]
+    conversion: null

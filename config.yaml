@@ -1,0 +1,23 @@
+name: "Nutrition Assistant"
+description: "Deterministic, private weekly meal-plan dry-run"
+version: "0.3.0"
+slug: "nutrition_assistant"
+stage: experimental
+startup: once
+boot: manual
+init: false
+backup: cold
+arch:
+  - amd64
+map:
+  - type: app_config
+    read_only: false
+options:
+  openai_model: "gpt-6.2-sol"
+  skip_destination_check: false
+schema:
+  openai_api_key: password
+  mealie_url: url
+  mealie_api_token: password
+  openai_model: str
+  skip_destination_check: bool

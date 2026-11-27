@@ -1,0 +1,47 @@
+[package]
+name = "nutrition-assistant"
+version = "0.3.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Deterministic private weekly nutrition planner"
+license = "MIT"
+readme = "README.md"
+publish = false
+
+[lib]
+name = "nutrition_assistant"
+path = "src/lib.rs"
+
+[[bin]]
+name = "nutrition-assistant"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+async-trait = "0.1"
+calamine = "0.38"
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
+clap = { version = "4", features = ["derive"] }
+dotenvy = "0.15"
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+rusqlite = { version = "0.37", features = ["bundled"] }
+rust_decimal = { version = "1", features = ["serde"] }
+schemars = { version = "1", features = ["chrono04"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+sha2 = "0.10"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+
+[dev-dependencies]
+proptest = "1"
+tempfile = "3"
+wiremock = "0.6"
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1

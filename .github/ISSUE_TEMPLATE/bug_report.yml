@@ -1,0 +1,38 @@
+name: Bug report
+description: Report reproducible incorrect behavior using synthetic or redacted data
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Never include API keys, profiles, health information, generated personal plans,
+        database contents, or private URLs.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide commands and deliberately synthetic inputs.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed all secrets, private profiles, personal plans, and health information.
+          required: true

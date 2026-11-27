@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nutrition Planner"
+  short_description: "Plan and review reliable weekly nutrition workflows"
+  default_prompt: "Use $nutrition-planner to design or review a safe weekly meal-planning workflow."

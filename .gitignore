@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+*.local.*
+config/private/
+secrets/
+*.sqlite*
+*.db
+logs/
+target/
+config/BLS_*.xlsx
