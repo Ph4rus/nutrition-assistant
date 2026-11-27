@@ -7,6 +7,13 @@ uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-11-27
+
+### Added
+
+- Home Assistant operations for hash-bound local approval, approval status, and revocation of either
+  the original dry-run or a validated recipe revision.
+
 ## [0.3.4] - 2026-11-27
 
 ### Added
@@ -65,7 +72,8 @@ uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Mealie v3 publishing library with conflict checks, ownership ledger, and readback.
 - Experimental one-shot Home Assistant dry-run app.
 
-[Unreleased]: https://github.com/Ph4rus/nutrition-assistant/compare/v0.3.4...HEAD
+[Unreleased]: https://github.com/Ph4rus/nutrition-assistant/compare/v0.3.5...HEAD
+[0.3.5]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.5
 [0.3.4]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.4
 [0.3.3]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.3
 [0.3.2]: https://github.com/Ph4rus/nutrition-assistant/releases/tag/v0.3.2

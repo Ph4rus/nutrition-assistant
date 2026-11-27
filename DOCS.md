@@ -27,6 +27,7 @@ mappings before generating a real plan.
 - `operation`: `dry_run` for a weekly proposal or `refine` for one locked recipe replacement;
 - `refine_recipe_id`: exact recipe ID shown in the review issue path;
 - `refine_instruction`: requested change applied only to the selected recipe.
+- `approval_artifact`: `dry_run` for the original preview or `revision` for the latest refinement.
 
 For the Home Assistant Community Apps Mealie installation, the internal Supervisor-network URL is
 normally `http://a0d7b954-mealie:9001`. No external Mealie port is required for app-to-app
@@ -73,3 +74,11 @@ A needs-review parent is accepted only when every open issue belongs to the sele
 allows a local recipe problem such as `active_time_exceeded` to be repaired without weakening
 unrelated blockers. After inspecting the revision, set `operation` back to `dry_run`; refinement
 never publishes to Mealie.
+
+## Local approval
+
+Set `approval_artifact` to the exact reviewed artifact and use operation `approve` to bind approval
+to its SHA-256 hash in the private SQLite ledger. `approval_status` checks the binding and
+`revoke_approval` removes it before publishing begins. Any content change produces another hash and
+requires a new approval. These operations do not contact or modify Mealie. Return `operation` to
+`dry_run` after completing the one-shot command.

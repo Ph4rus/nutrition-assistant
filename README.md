@@ -29,6 +29,8 @@ one-shot dry-run and does not publish or modify Home Assistant.
 - Stable run identities and a SQLite ledger prevent duplicate weekly runs.
 - Publishing fails closed on unresolved ingredients or occupied Mealie slots.
 - Approval is bound to the SHA-256 hash of an exact validated preview.
+- Home Assistant exposes one-shot local approval, status, and revocation operations without remote
+  publishing.
 - Profiles, credentials, generated plans, databases, and source datasets stay outside Git.
 
 ## Current status

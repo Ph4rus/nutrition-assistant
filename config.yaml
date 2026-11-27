@@ -1,7 +1,7 @@
 name: "Nutrition Assistant"
 description: "Deterministic, private weekly meal-plan dry-run"
 url: "https://github.com/Ph4rus/nutrition-assistant"
-version: "0.3.4"
+version: "0.3.5"
 slug: "nutrition_assistant"
 image: "ghcr.io/ph4rus/nutrition-assistant"
 stage: experimental
@@ -20,12 +20,14 @@ options:
   operation: "dry_run"
   refine_recipe_id: ""
   refine_instruction: ""
+  approval_artifact: "revision"
 schema:
   openai_api_key: password
   mealie_url: url
   mealie_api_token: password
   openai_model: str
   skip_destination_check: bool
-  operation: list(dry_run|refine)
+  operation: list(dry_run|refine|approve|approval_status|revoke_approval)
   refine_recipe_id: str
   refine_instruction: str
+  approval_artifact: list(dry_run|revision)

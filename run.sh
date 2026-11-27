@@ -117,12 +117,50 @@ run_refinement() {
     return "${planner_status}"
 }
 
+approval_artifact_path() {
+    case "$(bashio::config 'approval_artifact')" in
+        dry_run)
+            printf '%s\n' "${visible_preview_path}"
+            ;;
+        revision)
+            printf '%s\n' "${visible_revision_path}"
+            ;;
+        *)
+            bashio::log.fatal "Unsupported approval artifact."
+            return 1
+            ;;
+    esac
+}
+
+run_approval() {
+    local command="$1"
+    local artifact_path
+    artifact_path="$(approval_artifact_path)"
+    if [[ ! -f "${artifact_path}" ]]; then
+        bashio::log.fatal "Approval artifact does not exist: ${artifact_path}"
+        return 1
+    fi
+    bashio::log.info "Running local hash-bound approval command: ${command}."
+    /usr/bin/nutrition-assistant approval "${command}" \
+        --input "${artifact_path}" \
+        --database /data/planner.sqlite3
+}
+
 case "$(bashio::config 'operation')" in
     dry_run)
         run_dry_run
         ;;
     refine)
         run_refinement
+        ;;
+    approve)
+        run_approval approve
+        ;;
+    approval_status)
+        run_approval status
+        ;;
+    revoke_approval)
+        run_approval revoke
         ;;
     *)
         bashio::log.fatal "Unsupported operation."
