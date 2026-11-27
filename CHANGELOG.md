@@ -7,6 +7,10 @@ uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Transparent Home Assistant app icon and horizontal project wordmark.
+
 ## [0.3.0] - 2026-11-27
 
 ### Added

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="Nutrition Assistant logo" width="250">
+</p>
+
 # Nutrition Assistant
 
 Nutrition Assistant is a self-hosted weekly meal planner written in Rust. A language model may
@@ -149,3 +153,6 @@ Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and
 [SECURITY.md](SECURITY.md) before opening a pull request or reporting a vulnerability.
 
 Licensed under the [MIT License](LICENSE).
+
+The project icon and wordmark are included as `icon.png` and `logo.png` and are covered by the
+same license.
