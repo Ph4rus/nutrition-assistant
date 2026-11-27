@@ -119,6 +119,8 @@ Any content change creates a different hash and therefore requires a new approva
 The repository contains an experimental Home Assistant app definition. It has no privileged,
 host-network, Home Assistant API, or Supervisor API access. It starts manually, creates the next
 configured planning cycle, stores its private ledger and preview under `/data`, and exits.
+Release images are built by GitHub Actions and published with immutable version tags to GHCR, so
+Home Assistant does not compile the Rust project during installation.
 
 [![Open Home Assistant and add the Nutrition Assistant app repository.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FPh4rus%2Fnutrition-assistant)
 

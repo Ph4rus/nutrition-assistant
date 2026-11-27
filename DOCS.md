@@ -3,6 +3,9 @@
 The included app packages Nutrition Assistant as a manual, one-shot dry-run. It creates a private
 preview and exits. It does not publish to Mealie and does not modify Home Assistant.
 
+Home Assistant pulls a prebuilt `linux/amd64` release image from GHCR. Rust compilation happens in
+GitHub Actions when a matching release tag is pushed, not on the Home Assistant host.
+
 ## Required files
 
 Place the following private files in the app's `app_config` directory:

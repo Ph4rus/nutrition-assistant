@@ -3,7 +3,7 @@ set -euo pipefail
 
 readonly project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly output_dir="${project_dir}/.podman-build.local.out"
-readonly image_tag="${1:-localhost/nutrition-assistant:0.3.0}"
+readonly image_tag="${1:-localhost/nutrition-assistant:0.3.1}"
 container_id=""
 
 cleanup() {
